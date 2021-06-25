@@ -17,11 +17,14 @@ func TestNextToken(t *testing.T) {
 	}{
 		{token.Tag, "html"},
 		{token.LF, "\n"},
-		{token.Indent, "  "},
+		{token.Space, " "},
+		{token.Space, " "},
 		{token.Tag, "body"},
 		{token.LF, "\n"},
-		{token.Indent, "  "},
-		{token.Indent, "  "},
+		{token.Space, " "},
+		{token.Space, " "},
+		{token.Space, " "},
+		{token.Space, " "},
 		{token.Tag, "div"},
 		{token.LF, "\n"},
 	}

@@ -27,16 +27,31 @@ func (l *Lexer) readChar() {
 	l.nextPos++
 }
 
+func (l *Lexer) peekChar() byte {
+	if l.nextPos >= len(l.input) {
+		return 0
+	}
+	return l.input[l.nextPos]
+}
+
 func (l *Lexer) NextToken() (t token.Token) {
 	switch l.ch {
 	case ' ':
 		t = newToken(token.Space, l.ch)
-	case '\t':
-		t = newToken(token.Tab, l.ch)
 	case '\n':
 		t = newToken(token.LF, l.ch)
 	case '#':
-		t = newToken(token.Comment, l.ch)
+		if l.peekChar() == '=' {
+			ch := l.ch
+			l.readChar()
+			literal := string(ch) + string(l.ch)
+			t = token.Token{
+				Type:    token.PrintComment,
+				Literal: literal,
+			}
+		} else {
+			t = newToken(token.Comment, l.ch)
+		}
 	case '.':
 		t = newToken(token.Period, l.ch)
 	case '|':
@@ -53,6 +68,8 @@ func (l *Lexer) NextToken() (t token.Token) {
 		t = newToken(token.Code, l.ch)
 	case '/':
 		t = newToken(token.SingleTagMark, l.ch)
+		//	case '\t': TODO: ERROR
+		//		t = newToken(token.Tab, l.ch)
 	case 0:
 		t = newToken(token.EOF, 'e')
 		t.Literal = ""

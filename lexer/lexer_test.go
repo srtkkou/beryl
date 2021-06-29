@@ -9,6 +9,11 @@ import (
 func TestNextToken(t *testing.T) {
 	input := "html\n" +
 		"  body\n" +
+		"    div\n" +
+		"      + $a = 5\n" +
+		"      span" +
+		"        + print($a)\n" +
+		"    hr/\n" +
 		"    div\n"
 
 	tests := []struct {

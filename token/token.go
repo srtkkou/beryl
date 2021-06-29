@@ -8,11 +8,9 @@ type Token struct {
 }
 
 const (
-	Illegal = "Illegal"
-	EOF     = "EOF"
-	Space   = " "
-	Tab     = "\t"
-	//Indent       = "  "
+	Illegal      = "Illegal"
+	EOF          = "EOF"
+	Space        = " "
 	LF           = "\n"
 	Comment      = "#"
 	PrintComment = "#+"
@@ -26,4 +24,5 @@ const (
 	//PrintCode     = "+"
 	SingleTagMark = "/"
 	Tag           = "Tag"
+	VarMark       = "$"
 )

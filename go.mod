@@ -1,3 +1,3 @@
-module github.com/srtkkou/beryl
+module github.com/srtkkou/garnet
 
 go 1.16

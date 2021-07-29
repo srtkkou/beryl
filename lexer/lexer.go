@@ -1,7 +1,7 @@
 package lexer
 
 import (
-	"github.com/srtkkou/beryl/token"
+	"github.com/srtkkou/garnet/token"
 )
 
 type Lexer struct {

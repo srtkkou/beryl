@@ -3,7 +3,7 @@ package lexer
 import (
 	"testing"
 
-	"github.com/srtkkou/beryl/token"
+	"github.com/srtkkou/garnet/token"
 )
 
 func TestNextToken(t *testing.T) {

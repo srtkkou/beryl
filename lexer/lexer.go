@@ -1,6 +1,8 @@
 package lexer
 
 import (
+	"unicode/utf8"
+
 	"github.com/srtkkou/garnet/token"
 )
 
@@ -8,99 +10,101 @@ type Lexer struct {
 	input   string
 	pos     int
 	nextPos int
-	ch      byte
+	letter  rune
 }
 
 func New(input string) *Lexer {
 	l := &Lexer{input: input}
-	l.readChar()
+	l.readLetter()
 	return l
 }
 
-func (l *Lexer) readChar() {
+func (l *Lexer) readLetter() {
 	if l.nextPos >= len(l.input) {
-		l.ch = 0
+		l.letter = '0'
 	} else {
-		l.ch = l.input[l.nextPos]
+		runes := []rune(l.input)
+		l.letter = runes[l.nextPos]
 	}
 	l.pos = l.nextPos
-	l.nextPos++
+	l.nextPos += utf8.RuneLen(l.letter)
 }
 
-func (l *Lexer) peekChar() byte {
+func (l *Lexer) peekLetter() rune {
 	if l.nextPos >= len(l.input) {
-		return 0
+		return '0'
 	}
-	return l.input[l.nextPos]
+	runes := []rune(l.input)
+	return runes[l.nextPos]
 }
 
 func (l *Lexer) NextToken() (t token.Token) {
-	switch l.ch {
+	switch l.letter {
 	case ' ':
-		t = newToken(token.Space, l.ch)
+		t = newToken(token.Space, l.letter)
 	case '\n':
-		t = newToken(token.LF, l.ch)
+		t = newToken(token.LF, l.letter)
 	case '#':
-		if l.peekChar() == '=' {
-			ch := l.ch
-			l.readChar()
-			literal := string(ch) + string(l.ch)
+		if l.peekLetter() == '=' {
+			nowLetter := l.letter
+			l.readLetter()
+			literal := string(nowLetter) + string(l.letter)
 			t = token.Token{
 				Type:    token.PrintComment,
 				Literal: literal,
 			}
 		} else {
-			t = newToken(token.Comment, l.ch)
+			t = newToken(token.Comment, l.letter)
 		}
 	case '.':
-		t = newToken(token.Period, l.ch)
+		t = newToken(token.Period, l.letter)
 	case '|':
-		t = newToken(token.Block, l.ch)
+		t = newToken(token.Block, l.letter)
 	case '[':
-		t = newToken(token.LBracket, l.ch)
+		t = newToken(token.LBracket, l.letter)
 	case ']':
-		t = newToken(token.RBracket, l.ch)
+		t = newToken(token.RBracket, l.letter)
 	case '"':
-		t = newToken(token.Quote, l.ch)
+		t = newToken(token.Quote, l.letter)
 	case '=':
-		t = newToken(token.Assign, l.ch)
+		t = newToken(token.Assign, l.letter)
 	case '-':
-		t = newToken(token.Code, l.ch)
+		t = newToken(token.Code, l.letter)
 	case '/':
-		t = newToken(token.SingleTagMark, l.ch)
+		t = newToken(token.SingleTagMark, l.letter)
 		//	case '\t': TODO: ERROR
 		//		t = newToken(token.Tab, l.ch)
 	case 0:
 		t = newToken(token.EOF, 'e')
 		t.Literal = ""
 	default:
-		if isLetter(l.ch) {
+		if isValidLetter(l.letter) {
 			t.Literal = l.readIdentifier()
 			t.Type = token.Tag
 			return t
 		} else {
-			t = newToken(token.Illegal, l.ch)
+			t = newToken(token.Illegal, l.letter)
 		}
 	}
-	l.readChar()
+	l.readLetter()
 	return t
 }
 
-func newToken(tokenType token.TokenType, ch byte) token.Token {
+func newToken(tokenType token.TokenType, r rune) token.Token {
 	return token.Token{
 		Type:    tokenType,
-		Literal: string(ch),
+		Literal: string(r),
 	}
 }
 
 func (l *Lexer) readIdentifier() string {
 	firstPos := l.pos
-	for isLetter(l.ch) {
-		l.readChar()
+	for isValidLetter(l.letter) {
+		l.readLetter()
 	}
 	return l.input[firstPos:l.pos]
 }
 
-func isLetter(ch byte) bool {
-	return ('a' <= ch && ch <= 'z') || ('A' <= ch && ch <= 'Z')
+func isValidLetter(r rune) bool {
+	return ('a' <= r && r <= 'z') || ('A' <= r && r <= 'Z')
 }
